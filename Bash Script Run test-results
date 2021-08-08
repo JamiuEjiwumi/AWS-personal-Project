@@ -1,0 +1,1 @@
+handlebars owaspzap/report.json < owaspzap/nunit-template.hbs > owaspzap/test-results.xml
