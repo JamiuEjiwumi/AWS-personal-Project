@@ -25,10 +25,10 @@ try {
         }
        stage("test deployment") {
          try {
-             sh 'kubectl apply --validate=true --dry-run=true -f kubernetes/ --context i-040acc9d4cf316c92@k8scluster.us-west-2.eksctl.io'
+             sh 'kubectl apply --validate=true --dry-run=true -f kubernetes/ --context i-040a***c92@k8scluster.us-west-2.eksctl.io'
            }
            catch (error) {
-             sh "kubectl config use-context i-040acc9d4cf316c92@k8scluster.us-west-2.eksctl.io"
+             sh "kubectl config use-context i-040acc***6c92@k8scluster.us-west-2.eksctl.io"
              slackSend (color: 'danger', message: ":disappointed: Build failed: ${jobInfo} ${timeSpent}")
              throw error
           }
@@ -72,7 +72,7 @@ def deploy(deploymentName, imageTag, projectName,repoName, isMaster){
     def namespace = isMaster ? "production" : "staging"
     sh("sed -i.bak 's|${AWS_ECR_ACCOUNT}/${projectName}/${repoName}:latest|${AWS_ECR_ACCOUNT}/${projectName}/${repoName}:${env.BUILD_NUMBER}|' ./kubernetes/sms-reporting-dashboard-frontend-deployment.yml")
     try{
-        sh "kubectl apply --namespace=${namespace}  -f kubernetes/ --context i-040acc9d4cf316c92@k8scluster.us-west-2.eksctl.io"
+        sh "kubectl apply --namespace=${namespace}  -f kubernetes/ --context i-040acc9****2@k8scluster.us-west-2.eksctl.io"
     }
     catch (err) {
         slackSend (color: 'danger', message: ":disappointed: Build failed: ${jobInfo} ${err}")
