@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    com.do.service: sms
+  name: sms
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      com.do.service: sms
+  strategy:
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels: 
+        com.do.service: sms
+    spec:
+      containers:
+        - name: sms
+          env:
+              - name: DB_PORT
+                valueFrom:
+                          configMapKeyRef:
+                           name: 	bulksmsconfig
+                           key: PORT
+              - name: JWT_SECRET
+                valueFrom:
+                          configMapKeyRef:
+                           name: 	bulksmsconfig
+                           key: JWT_SECRET
+              - name: SQLALCHEMY_DB_URI
+                valueFrom:
+                          configMapKeyRef:
+                           name: 	bulksmsconfig
+                           key: SQLALCHEMY_DB_URI
+              - name: POSTGRES_PASSWORD
+                valueFrom:
+                          configMapKeyRef:
+                           name: 	bulksmsconfig
+                           key: POSTGRES_PASSWORD
+              - name: POSTGRES_DB
+                valueFrom:
+                          configMapKeyRef:
+                           name: 	bulksmsconfig
+                           key: POSTGRES_DB
+              - name: POSTGRES_USER
+                valueFrom:
+                          configMapKeyRef:
+                           name: 	bulksmsconfig
+                           key: POSTGRES_USER
+              - name: DATABASE_NAME
+                valueFrom:
+                          configMapKeyRef:
+                           name: 	bulksmsconfig
+                           key: DATABASE_NAME
+              - name: S3_STAGING_DIR
+                valueFrom:
+                          configMapKeyRef:
+                           name: 	bulksmsconfig
+                           key: S3_STAGING_DIR
+              - name: S3_BUCKET_NAME
+                valueFrom:
+                          configMapKeyRef:
+                           name: 	bulksmsconfig
+                           key: S3_BUCKET_NAME
+              - name: S3_OUTPUT_DIR
+                valueFrom:
+                          configMapKeyRef:
+                           name: 	bulksmsconfig
+                           key: S3_OUTPUT_DIR
+              - name: AWS_REGION
+                valueFrom:
+                          configMapKeyRef:
+                           name: 	bulksmsconfig
+                           key: AWS_REGION
+              - name: PRIVATE_KEY
+                valueFrom:
+                  secretKeyRef: 
+                    name: bulk-sms-secret
+                    key: PRIVATE_KEY
+              - name: AWS_ACCESS_KEY
+                valueFrom:
+                  secretKeyRef: 
+                    name: bulk-sms-secret
+                    key: AWS_ACCESS_KEY
+              - name: AWS_SECRET_KEY
+                valueFrom:
+                  secretKeyRef: 
+                    name: bulk-sms-secret
+                    key: AWS_SECRET_KEY
+          image: 101****48.dkr.ecr.eu-west-1.amazonaws.com/sms/sms:latest
+          imagePullPolicy: Always
+          ports:
+           - containerPort: 8500
+             name: 8500tcp00
+             protocol: TCP
+             
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sms
+spec:
+   selector: 
+     com.do.service: sms
+   ports: 
+       - protocol: TCP
+         port: 80
+         targetPort: 8500
+   type: NodePort
