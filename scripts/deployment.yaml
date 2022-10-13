@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: Service
+metadata:
+#   namespace: space
+  name: cms
+  labels:
+    app: cms
+spec:
+#   type: LoadBalancer
+  ports:
+  - name: cms-http
+    port: 80
+    targetPort: 1337
+  selector:
+    app: cms
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+#   namespace: space
+  name: cms
+spec:
+  selector:
+    matchLabels:
+      app: cms
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: cms
+    spec:
+      containers:
+      - name: cms
+        image: <IMAGE>
+        ports:
+        - containerPort: 1337
+        resources:
+          limits: 
+            # memory: "512Mi"
+            cpu: 200m
+        livenessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          successThreshold: 1
+          tcpSocket:
+            port: 1337
+          timeoutSeconds: 30
+        readinessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 90
+          periodSeconds: 30
+          successThreshold: 1
+          tcpSocket:
+            port: 1337
+          timeoutSeconds: 30
+        imagePullPolicy: Always
+      #   volumeMounts:
+      #   - name: config-volume
+      #     mountPath: /secrets/config
+      #     readOnly: true
+      # volumes:
+      # - name: config-volume
+      #   configMap:
+      #     name: cms
